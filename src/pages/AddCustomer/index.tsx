@@ -15,6 +15,9 @@ const AddCustomerPage = () => {
     fetch("https://northwind.vercel.app/api/customers", {
       method: "POST",
       body: JSON.stringify(customer),
+      headers:{
+        "Content-type":"application/json"
+      }
     })
       .then((res) => res.json())
       .then((data) => console.log(data))
