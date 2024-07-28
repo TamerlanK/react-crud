@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ICustomer } from "../../type";
 
 const AddCustomerPage = () => {
   const [companyName, setCompanyName] = useState("");
@@ -6,12 +7,7 @@ const AddCustomerPage = () => {
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
 
-  function postCustomer(customer: {
-    companyName: string;
-    contactTitle: string;
-    city: string;
-    country: string;
-  }) {
+  function postCustomer(customer: ICustomer) {
     fetch("https://northwind.vercel.app/api/customers", {
       method: "POST",
       body: JSON.stringify(customer),
@@ -103,7 +99,7 @@ const AddCustomerPage = () => {
             className="border-2 px-4 py-2 rounded-xl hover:bg-slate-300 ease-out duration-200"
             onClick={(e) => {
               e.preventDefault();
-              postCustomer({ companyName, contactTitle, country, city });
+              postCustomer({ companyName, contactTitle, address:{city,country} });
             }}
           >
             Submit
