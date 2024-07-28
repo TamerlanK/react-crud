@@ -2,17 +2,31 @@ import { useEffect, useState } from "react"
 import { ICustomer } from "../../type"
 
 const FavoritesPage = () => {
-  const [customerData, setCustomerData] = useState<ICustomer[]>([])
+  const [favoriteCustomers, setFavoriteCustomers] = useState<ICustomer[]>([])
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("favorites")!)
-
-    setCustomerData(data)
+    setFavoriteCustomers(data)
   }, [])
+
+  function removeFromFavorites(customerId: ICustomer["id"]) {
+    if (!customerId) return
+    const foundCustomer = favoriteCustomers.findIndex(
+      (fav) => fav.id === customerId
+    )
+
+    if (foundCustomer !== -1) {
+      const filteredFavorites = favoriteCustomers.filter(
+        (cust) => cust.id !== customerId
+      )
+      localStorage.setItem("favorites", JSON.stringify(filteredFavorites))
+      setFavoriteCustomers(filteredFavorites)
+    }
+  }
 
   return (
     <div className="w-full p-6">
-      {customerData && customerData.length > 0 ? (
+      {favoriteCustomers && favoriteCustomers.length > 0 ? (
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 rounded-lg overflow-hidden">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -34,7 +48,7 @@ const FavoritesPage = () => {
             </tr>
           </thead>
           <tbody>
-            {customerData.map((customer) => (
+            {favoriteCustomers.map((customer) => (
               <tr
                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                 key={customer.id}
@@ -53,7 +67,7 @@ const FavoritesPage = () => {
 
                 <td
                   className="px-6 py-4 text-3xl text-center cursor-pointer"
-                  onClick={() => {}}
+                  onClick={() => removeFromFavorites(customer.id)}
                 >
                   ❤️
                 </td>
