@@ -1,23 +1,32 @@
-import { useState } from "react";
-import { ICustomer } from "../../type";
+import { useState } from "react"
+import { ICustomer } from "../../type"
+import Swal from "sweetalert2"
 
 const AddCustomerPage = () => {
-  const [companyName, setCompanyName] = useState("");
-  const [contactTitle, setContactTitle] = useState("");
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
+  const [companyName, setCompanyName] = useState("")
+  const [contactTitle, setContactTitle] = useState("")
+  const [city, setCity] = useState("")
+  const [country, setCountry] = useState("")
+
+  const [error, setError] = useState("")
 
   function postCustomer(customer: ICustomer) {
     fetch("https://northwind.vercel.app/api/customers", {
       method: "POST",
       body: JSON.stringify(customer),
-      headers:{
-        "Content-type":"application/json"
-      }
+      headers: {
+        "Content-type": "application/json",
+      },
     })
       .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err));
+      .then(() => {
+        Swal.fire({
+          title: "Success",
+          text: "Customer added successfully!",
+          icon: "success",
+        })
+      })
+      .catch((err) => console.log(err))
   }
 
   return (
@@ -39,7 +48,7 @@ const AddCustomerPage = () => {
             className=" p-2 rounded-md border grow"
             placeholder="Enter company name"
             onChange={(e) => {
-              setCompanyName(e.target.value);
+              setCompanyName(e.target.value)
             }}
           />
         </div>
@@ -56,7 +65,7 @@ const AddCustomerPage = () => {
             className=" p-2 rounded-md border grow"
             placeholder="Enter contact title"
             onChange={(e) => {
-              setContactTitle(e.target.value);
+              setContactTitle(e.target.value)
             }}
           />
         </div>
@@ -73,7 +82,7 @@ const AddCustomerPage = () => {
             className=" p-2 rounded-md border grow"
             placeholder="Enter city name"
             onChange={(e) => {
-              setCity(e.target.value);
+              setCity(e.target.value)
             }}
           />
         </div>
@@ -90,7 +99,7 @@ const AddCustomerPage = () => {
             className=" p-2 rounded-md border grow"
             placeholder="Enter country name"
             onChange={(e) => {
-              setCountry(e.target.value);
+              setCountry(e.target.value)
             }}
           />
         </div>
@@ -98,16 +107,42 @@ const AddCustomerPage = () => {
           <button
             className="border-2 px-4 py-2 rounded-xl hover:bg-slate-300 ease-out duration-200"
             onClick={(e) => {
-              e.preventDefault();
-              postCustomer({ companyName, contactTitle, address:{city,country} });
+              e.preventDefault()
+
+              if (
+                companyName === "" ||
+                contactTitle === "" ||
+                city === "" ||
+                country === ""
+              ) {
+                setError("All fields are required")
+                setTimeout(() => {
+                  setError("")
+                }, 3000)
+                return
+              }
+
+              const newCustomer: ICustomer = {
+                companyName,
+                contactTitle,
+                address: {
+                  city,
+                  country,
+                },
+              }
+
+              postCustomer(newCustomer)
             }}
           >
             Submit
           </button>
         </div>
+        {error && (
+          <div className="p-2 rounded-md bg-red-200 text-red-600">{error}</div>
+        )}
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default AddCustomerPage;
+export default AddCustomerPage
