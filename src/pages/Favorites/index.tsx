@@ -11,17 +11,11 @@ const FavoritesPage = () => {
 
   function removeFromFavorites(customerId: ICustomer["id"]) {
     if (!customerId) return
-    const foundCustomer = favoriteCustomers.findIndex(
-      (fav) => fav.id === customerId
+    const updatedFavorites = favoriteCustomers.filter(
+      (customer) => customer.id !== customerId
     )
-
-    if (foundCustomer !== -1) {
-      const filteredFavorites = favoriteCustomers.filter(
-        (cust) => cust.id !== customerId
-      )
-      localStorage.setItem("favorites", JSON.stringify(filteredFavorites))
-      setFavoriteCustomers(filteredFavorites)
-    }
+    localStorage.setItem("favorites", JSON.stringify(updatedFavorites))
+    setFavoriteCustomers(updatedFavorites)
   }
 
   return (
