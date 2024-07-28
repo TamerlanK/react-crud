@@ -4,7 +4,7 @@ import Loader from "../../components/Loader"
 const CustomersListPage = () => {
   const [customerData, setCustomerData] = useState<ICustomer[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [favorites, setFavorites] = useState<ICustomer[]>([])
 
   useEffect(() => {
     setIsLoading(true)
@@ -15,6 +15,11 @@ const CustomersListPage = () => {
       })
       .finally(() => setIsLoading(false))
   }, [])
+
+  useEffect(() => {
+    const storedFavorites = JSON.parse(localStorage.getItem("favorites")!) || []
+    setFavorites(storedFavorites)
+  }, [setFavorites])
 
   function deleteCustomer(deleteId: string | undefined) {
     fetch(`https://northwind.vercel.app/api/customers/${deleteId}`, {
@@ -28,25 +33,26 @@ const CustomersListPage = () => {
   }
 
   function addToFavorites(customerData: ICustomer) {
-    let favorites = JSON.parse(localStorage.getItem("favorites")!)
+    try {
+      let favorites = JSON.parse(localStorage.getItem("favorites")!) || []
 
-    if (!favorites) {
-      favorites = []
+      const foundedItemIndex = favorites.findIndex(
+        (item: ICustomer) => item.id === customerData.id
+      )
+
+      if (foundedItemIndex !== -1) {
+        favorites = favorites.filter(
+          (item: ICustomer) => item.id !== customerData.id
+        )
+        localStorage.setItem("favorites", JSON.stringify(favorites))
+      } else {
+        favorites.push(customerData)
+        localStorage.setItem("favorites", JSON.stringify(favorites))
+      }
+      setFavorites(favorites)
+    } catch (error) {
+      console.error("An error occurred", error)
     }
-
-    const foundedItem = favorites.find(
-      (item: ICustomer) => item.id === customerData.id
-    )
-
-    if (foundedItem) {
-      favorites.filter((item: ICustomer) => item.id !== foundedItem.id)
-      localStorage.setItem("favorites", JSON.stringify(favorites))
-      setIsFavorite(false)
-    }
-
-    favorites.push(customerData)
-    localStorage.setItem("favorites", JSON.stringify(favorites))
-    setIsFavorite(true)
   }
 
   return (
@@ -111,7 +117,7 @@ const CustomersListPage = () => {
                   className="px-6 py-4 text-3xl text-center cursor-pointer"
                   onClick={() => addToFavorites(customer)}
                 >
-                  {isFavorite ? "❤️" : "♡"}
+                  {favorites.some((fav) => fav.id === customer.id) ? "❤️" : "♡"}
                 </td>
               </tr>
             ))}
