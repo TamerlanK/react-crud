@@ -1,19 +1,32 @@
-import { useEffect, useState } from "react"
-import { ICustomer } from "../../type"
-import Loader from "../../components/Loader"
+import { useEffect, useState } from "react";
+import { ICustomer } from "../../type";
+import Loader from "../../components/Loader";
 const CustomersListPage = () => {
-  const [customerData, setCustomerData] = useState<ICustomer[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [customerData, setCustomerData] = useState<ICustomer[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true)
+    setIsLoading(true);
     fetch("https://northwind.vercel.app/api/customers")
       .then((res) => res.json())
       .then((data) => {
-        setCustomerData(data)
+        setCustomerData(data);
       })
-      .finally(() => setIsLoading(false))
-  }, [])
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  function deleteCustomer(deleteId: string | undefined) {
+    fetch(`https://northwind.vercel.app/api/customers/${deleteId}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const filteredCustomers = customerData.filter(
+          (customer) => customer.id !== deleteId
+        );
+        setCustomerData(filteredCustomers);
+      });
+  }
 
   return (
     <div className="w-full p-6">
@@ -63,7 +76,13 @@ const CustomersListPage = () => {
                   {customer?.address?.city}, {customer?.address?.country}
                 </td>
                 <td className="px-6 py-4 text-center">
-                  <button className="bg-red-600 text-white p-2 rounded-xl hover:bg-red-800 ease-in duration-300">
+                  <button
+                    className="bg-red-600 text-white p-2 rounded-xl hover:bg-red-800 ease-in duration-300"
+                    onClick={() => {
+                      deleteCustomer(customer.id);
+                      console.log(customer.id);
+                    }}
+                  >
                     DELETE
                   </button>
                 </td>
@@ -76,7 +95,6 @@ const CustomersListPage = () => {
         </table>
       )}
     </div>
-  )
-}
-
-export default CustomersListPage
+  );
+};
+export default CustomersListPage;
