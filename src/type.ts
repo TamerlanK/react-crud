@@ -1,4 +1,5 @@
 export interface ICustomer {
+  id?: string;
   companyName: string;
   contactTitle: string;
   address: {
@@ -6,4 +7,3 @@ export interface ICustomer {
     country: string;
   };
 }
-
