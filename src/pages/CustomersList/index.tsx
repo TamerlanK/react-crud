@@ -4,6 +4,7 @@ import Loader from "../../components/Loader"
 const CustomersListPage = () => {
   const [customerData, setCustomerData] = useState<ICustomer[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   useEffect(() => {
     setIsLoading(true)
@@ -27,9 +28,25 @@ const CustomersListPage = () => {
   }
 
   function addToFavorites(customerData: ICustomer) {
-    const favorites = JSON.parse(localStorage.getItem("favorites")!)
+    let favorites = JSON.parse(localStorage.getItem("favorites")!)
+
+    if (!favorites) {
+      favorites = []
+    }
+
+    const foundedItem = favorites.find(
+      (item: ICustomer) => item.id === customerData.id
+    )
+
+    if (foundedItem) {
+      favorites.filter((item: ICustomer) => item.id !== foundedItem.id)
+      localStorage.setItem("favorites", JSON.stringify(favorites))
+      setIsFavorite(false)
+    }
+
     favorites.push(customerData)
     localStorage.setItem("favorites", JSON.stringify(favorites))
+    setIsFavorite(true)
   }
 
   return (
@@ -94,7 +111,7 @@ const CustomersListPage = () => {
                   className="px-6 py-4 text-3xl text-center cursor-pointer"
                   onClick={() => addToFavorites(customer)}
                 >
-                  ♡
+                  {isFavorite ? "❤️" : "♡"}
                 </td>
               </tr>
             ))}
