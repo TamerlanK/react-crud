@@ -1,31 +1,35 @@
-import { useEffect, useState } from "react";
-import { ICustomer } from "../../type";
-import Loader from "../../components/Loader";
+import { useEffect, useState } from "react"
+import { ICustomer } from "../../type"
+import Loader from "../../components/Loader"
 const CustomersListPage = () => {
-  const [customerData, setCustomerData] = useState<ICustomer[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [customerData, setCustomerData] = useState<ICustomer[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    setIsLoading(true);
+    setIsLoading(true)
     fetch("https://northwind.vercel.app/api/customers")
       .then((res) => res.json())
       .then((data) => {
-        setCustomerData(data);
+        setCustomerData(data)
       })
-      .finally(() => setIsLoading(false));
-  }, []);
+      .finally(() => setIsLoading(false))
+  }, [])
 
   function deleteCustomer(deleteId: string | undefined) {
     fetch(`https://northwind.vercel.app/api/customers/${deleteId}`, {
       method: "DELETE",
+    }).then(() => {
+      const filteredCustomers = customerData.filter(
+        (customer) => customer.id !== deleteId
+      )
+      setCustomerData(filteredCustomers)
     })
-      .then((res) => res.json())
-      .then((data) => {
-        const filteredCustomers = customerData.filter(
-          (customer) => customer.id !== deleteId
-        );
-        setCustomerData(filteredCustomers);
-      });
+  }
+
+  function addToFavorites(customerData: ICustomer) {
+    const favorites = JSON.parse(localStorage.getItem("favorites")!)
+    favorites.push(customerData)
+    localStorage.setItem("favorites", JSON.stringify(favorites))
   }
 
   return (
@@ -79,14 +83,17 @@ const CustomersListPage = () => {
                   <button
                     className="bg-red-600 text-white p-2 rounded-xl hover:bg-red-800 ease-in duration-300"
                     onClick={() => {
-                      deleteCustomer(customer.id);
-                      console.log(customer.id);
+                      deleteCustomer(customer.id)
+                      console.log(customer.id)
                     }}
                   >
                     DELETE
                   </button>
                 </td>
-                <td className="px-6 py-4 text-3xl text-center cursor-pointer">
+                <td
+                  className="px-6 py-4 text-3xl text-center cursor-pointer"
+                  onClick={() => addToFavorites(customer)}
+                >
                   ♡
                 </td>
               </tr>
@@ -95,6 +102,6 @@ const CustomersListPage = () => {
         </table>
       )}
     </div>
-  );
-};
-export default CustomersListPage;
+  )
+}
+export default CustomersListPage
