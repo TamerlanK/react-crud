@@ -1,18 +1,28 @@
-import { useEffect, useState } from "react";
-import { ICustomer } from "../../type";
+import { useEffect, useState } from "react"
+import { ICustomer } from "../../type"
+import Loader from "../../components/Loader"
 const CustomersListPage = () => {
-  const [customerData, setCustomerData] = useState<ICustomer[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [customerData, setCustomerData] = useState<ICustomer[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+
   useEffect(() => {
+    setIsLoading(true)
     fetch("https://northwind.vercel.app/api/customers")
       .then((res) => res.json())
-      .then((data) => setCustomerData(data));
-  }, []);
+      .then((data) => {
+        setCustomerData(data)
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
 
   return (
-    <div className="w-full">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+    <div className="w-full p-6">
+      {isLoading ? (
+        <div className="w-full text-center flex justify-center items-center">
+          <Loader />
+        </div>
+      ) : (
+        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 rounded-lg overflow-hidden">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
@@ -52,7 +62,7 @@ const CustomersListPage = () => {
                 <td className="px-6 py-4">
                   {customer?.address?.city}, {customer?.address?.country}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-center">
                   <button className="bg-red-600 text-white p-2 rounded-xl hover:bg-red-800 ease-in duration-300">
                     DELETE
                   </button>
@@ -64,9 +74,9 @@ const CustomersListPage = () => {
             ))}
           </tbody>
         </table>
-      </div>
+      )}
     </div>
-  );
-};
+  )
+}
 
-export default CustomersListPage;
+export default CustomersListPage
